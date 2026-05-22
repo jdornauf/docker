@@ -1,0 +1,30 @@
+services:
+  go2rtc:
+    image: alexxit/go2rtc:latest
+    container_name: go2rtc2
+    restart: unless-stopped
+    ports:
+      - "1984:1984"   # Web UI
+      - "8554:8554"   # RTSP
+      - "8555:8555/tcp"
+      - "8555:8555/udp"
+    volumes:
+      - /volume1/docker/motioneye/go2rtc:/config
+  motioneye:
+    image: motioneyeproject/motioneye
+    container_name: motioneye
+    restart: unless-stopped
+    depends_on:
+      - go2rtc
+    ports:
+      - "8765:8765"
+      - "9081:9081"
+    environment:
+      - TZ=Europe/Berlin
+    volumes:
+      - /volume1/docker/motioneye/config:/etc/motioneye
+      - /volume1/docker/motioneye/data:/var/lib/motioneye
+      - /volume1/docker/motioneye/logs:/var/log/motioneye
+      - /tmp/motioneye-run:/run/motioneye
+    security_opt:
+      - no-new-privileges:true
